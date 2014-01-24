@@ -1,6 +1,6 @@
 {
   "name": "bootstrap-daterangepicker",
-  "version": "1.2.0",
+  "version": "1.0.0",
   "main": "daterangepicker.js",
   "ignore": [
     "**/.*",
@@ -10,7 +10,8 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "~1.10",
-    "moment": "~2.1"
+    "moment": "~2.5.1",
+    "jquery": "~2.0.3",
+    "bootstrap": "~3.0.3"
   }
 }
