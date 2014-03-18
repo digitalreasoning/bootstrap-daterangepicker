@@ -128,7 +128,7 @@
                 fromLabel: 'From',
                 toLabel: 'To',
                 weekLabel: 'W',
-                customRangeLabel: 'Custom Range',
+                customRangeLabel: '<i class="glyphicon glyphicon-calendar"></i> Custom Range',
                 daysOfWeek: moment()._lang._weekdaysMin.slice(),
                 monthNames: moment()._lang._monthsShort.slice(),
                 firstDay: 0
@@ -503,6 +503,13 @@
                 e.preventDefault();
             }
 
+            // If the custom range option is selected then go ahead and show the calendars.
+            var $selectedRange = $('.ranges > ul > li.active', this.container);
+            if ($selectedRange.length !== 1)
+                return;
+            if ($selectedRange.html() === this.locale.customRangeLabel)
+                this.showCalendars();
+
             $(document).on('mousedown', $.proxy(this.hide, this));
             this.element.trigger('show.daterangepicker', this);
         },
@@ -691,16 +698,24 @@
             var month = parseInt(cal.find('.monthselect').val(), 10);
             var year = cal.find('.yearselect').val();
 
+            // When changing year/month make sure we update the day for the given year/month.
+            // Also ensure the start and end dates are in the proper order.
             if (isLeft) {
                 this.leftCalendar.month.month(month).year(year);
                 this.startDate.month(month).year(year);
+                if (this.startDate.valueOf() > this.endDate.valueOf()) {
+                    this.endDate = moment(this.startDate.valueOf());
+                    this.rightCalendar.month.month(month).year(year);
+                }
             } else {
                 this.rightCalendar.month.month(month).year(year);
-                this.startDate.month(month).year(year);
+                this.endDate.month(month).year(year);
+                if (this.endDate.valueOf() < this.startDate.valueOf()) {
+                    this.startDate = moment(this.endDate.valueOf());
+                    this.leftCalendar.month.month(month).year(year);
+                }
             }
-
             this.updateCalendars();
-
         },
 
         updateTime: function(e) {
