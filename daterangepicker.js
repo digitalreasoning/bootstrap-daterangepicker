@@ -693,8 +693,10 @@
 
             if (isLeft) {
                 this.leftCalendar.month.month(month).year(year);
+                this.startDate.month(month).year(year);
             } else {
                 this.rightCalendar.month.month(month).year(year);
+                this.startDate.month(month).year(year);
             }
 
             this.updateCalendars();
