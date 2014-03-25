@@ -99,9 +99,8 @@
         },
 
         setOptions: function(options, callback) {
-
-            this.startDate = moment().startOf('day');
-            this.endDate = moment().endOf('day');
+            this.setStartDate(moment().startOf('day'), true);
+            this.setEndDate(moment().endOf('day'), true);
             this.minDate = false;
             this.maxDate = false;
             this.dateLimit = false;
@@ -342,8 +341,6 @@
                 this.container.find('.ranges').show();
             }
 
-            this.oldStartDate = this.startDate.clone();
-            this.oldEndDate = this.endDate.clone();
             this.oldChosenLabel = this.chosenLabel;
 
             this.leftCalendar = {
@@ -375,7 +372,7 @@
 
         },
 
-        setStartDate: function(startDate) {
+        setStartDate: function(startDate, noUpdate) {
             if (typeof startDate === 'string')
                 this.startDate = moment(startDate, this.format);
 
@@ -385,16 +382,16 @@
             if (!this.timePicker)
                 this.startDate = this.startDate.startOf('day');
 
-            this.oldStartDate = this.startDate.clone();
-
             if (this.startDate.isAfter(this.endDate))
                 this.setEndDate(this.startDate.clone().add('second', 1));
+
+            if (noUpdate) return;
 
             this.updateView();
             this.updateCalendars();
         },
 
-        setEndDate: function(endDate) {
+        setEndDate: function(endDate, noUpdate) {
             if (typeof endDate === 'string')
                 this.endDate = moment(endDate, this.format);
 
@@ -404,10 +401,10 @@
             if (!this.timePicker)
                 this.endDate = this.endDate.endOf('day');
 
-            this.oldEndDate = this.endDate.clone();
-
             if (this.endDate.isBefore(this.startDate))
                 this.setStartDate(this.endDate.clone().subtract('second', 1));
+
+            if (noUpdate) return;
 
             this.updateView();
             this.updateCalendars();
@@ -443,16 +440,8 @@
                 end = start;
             }
 
-            if (end.isBefore(start)) return;
-
-            this.oldStartDate = this.startDate.clone();
-            this.oldEndDate = this.endDate.clone();
-
-            this.startDate = start;
-            this.endDate = end;
-
-            if (!this.startDate.isSame(this.oldStartDate) || !this.endDate.isSame(this.oldEndDate))
-                this.notify();
+            this.setStartDate(start);
+            this.setEndDate(end);
 
             this.updateCalendars();
         },
@@ -539,13 +528,11 @@
 
         hide: function (e) {
             this.element.removeClass('active');
-            this.container.hide();
 
-            if (!this.startDate.isSame(this.oldStartDate) || !this.endDate.isSame(this.oldEndDate))
+            if (this.container.children('.calendar').hasClass('single'))
                 this.notify();
 
-            this.oldStartDate = this.startDate.clone();
-            this.oldEndDate = this.endDate.clone();
+            this.container.hide();
 
             $(document).off(this.getEventNS('click'));
             this.element.trigger('hide.daterangepicker', this);
@@ -588,17 +575,17 @@
             } else {
                 var dates = this.ranges[label];
 
+                if (!this.timePicker) {
+                    dates[0].startOf('day');
+                    dates[1].endOf('day');
+                }
                 this.setStartDate(dates[0]);
                 this.setEndDate(dates[1]);
-
-                if (!this.timePicker) {
-                    this.startDate.startOf('day');
-                    this.endDate.endOf('day');
-                }
 
                 this.updateCalendars();
                 this.updateInputText();
                 this.hideCalendars();
+                this.notify();
                 this.hide();
                 this.element.trigger('apply.daterangepicker', this);
             }
@@ -703,13 +690,12 @@
 
         clickApply: function (e) {
             this.updateInputText();
+            this.notify();
             this.hide();
             this.element.trigger('apply.daterangepicker', this);
         },
 
         clickCancel: function (e) {
-            this.startDate = this.oldStartDate;
-            this.endDate = this.oldEndDate;
             this.chosenLabel = this.oldChosenLabel;
             this.updateView();
             this.updateCalendars();
