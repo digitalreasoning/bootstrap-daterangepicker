@@ -6,8 +6,7 @@
 * @license: Licensed under Apache License v2.0. See http://www.apache.org/licenses/LICENSE-2.0
 * @website: http://www.improvely.com/
 */
-!function ($, moment) {
-
+(function() {
     var drpId = 0;
     var DateRangePicker = function (element, options, cb) {
         this.id = drpId++;
@@ -997,5 +996,4 @@
         });
         return this;
     };
-
-}(window.jQuery, window.moment);
+})();
